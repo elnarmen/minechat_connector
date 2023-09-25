@@ -18,7 +18,7 @@ async def register(username='anonymous'):
         'minechat.dvmn.org', 5050)
 
     response = await reader.readline()
-    logger.debug(f'Ответ: {response.decode().strip()}')  # Hello %username%! Enter your personal hash or leave it empty to create new account.
+    logger.debug(f'Ответ: {response.decode().strip()}')
 
     writer.write('\n'.encode())
     logger.debug('Отправлено пустое сообщение для перехода в регистрацию')
@@ -41,12 +41,18 @@ async def register(username='anonymous'):
     await writer.wait_closed()
 
 
+async def submit_message(writer, message):
+    writer.write(f'{message}\n\n'.encode())
+    logger.debug(f'Сообщение: {message}')
+    await writer.drain()
+
+
 async def tcp_client(message, token):
     reader, writer = await asyncio.open_connection(
         'minechat.dvmn.org', 5050)
 
     greeting = await reader.readline()
-    logger.debug(greeting.decode().strip())  # Hello %username%! Enter your personal hash or leave it empty to create new account.
+    logger.debug(greeting.decode().strip())
 
     writer.write(f'{token}\n'.encode())
     logger.debug(f'Отправлен токен: {token}')
@@ -61,9 +67,7 @@ async def tcp_client(message, token):
     response = await reader.readline()
     logger.debug(f'Ответ: {response.decode().strip()}')
 
-    writer.write(f'{message}\n\n'.encode())
-    logger.debug(f'Сообщение: {message}')
-    await writer.drain()
+    await submit_message(writer, message)
 
     writer.close()
     await writer.wait_closed()
@@ -73,7 +77,7 @@ def main():
     load_dotenv()
     token = os.getenv('USER_TOKEN')
     if token:
-        asyncio.run(tcp_echo_client(message='Test message', token=token))
+        asyncio.run(tcp_client(message='Test message', token=token))
     else:
         asyncio.run(register())
 
