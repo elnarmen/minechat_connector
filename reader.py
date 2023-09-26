@@ -31,8 +31,8 @@ async def tcp_echo_client(host, port, path_to_output_file):
 def main():
     load_dotenv()
     parser = argparse.ArgumentParser()
-    parser.add_argument('--host', type=str, default=os.getenv('HOST'))
-    parser.add_argument('--port', type=int, default=os.getenv('PORT'))
+    parser.add_argument('--host', type=str, default='minechat.dvmn.org')
+    parser.add_argument('--port', type=int, default=5000)
     parser.add_argument(
         '--path',
         type=str,
@@ -42,11 +42,6 @@ def main():
     args = parser.parse_args()
 
     host, port, chat_history_path = args.host, args.port, args.path
-    if not all([host, port]):
-        raise EnvironmentError(
-            'Please ensure that the HOST and PORT environment variables are defined in your .env file '
-            'or provide them via command-line arguments using --host and --port.'
-        )
 
     asyncio.run(tcp_echo_client(host, port, chat_history_path))
 
