@@ -27,7 +27,6 @@ async def read_chat(host, port, path_to_output_file):
             await writer.wait_closed()
 
 
-
 def main():
     load_dotenv()
     parser = argparse.ArgumentParser()
