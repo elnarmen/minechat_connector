@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import json
 import logging
@@ -13,9 +14,8 @@ logging.getLogger('asyncio').setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
-async def register(username='anonymous'):
-    reader, writer = await asyncio.open_connection(
-        'minechat.dvmn.org', 5050)
+async def register(username, host, port):
+    reader, writer = await asyncio.open_connection(host, port)
 
     response = await reader.readline()
     logger.debug(f'Ответ: {response.decode().strip()}')
@@ -49,9 +49,8 @@ async def submit_message(writer, message):
     await writer.drain()
 
 
-async def tcp_client(message, token):
-    reader, writer = await asyncio.open_connection(
-        'minechat.dvmn.org', 5050)
+async def tcp_client(message, token, host, port):
+    reader, writer = await asyncio.open_connection(host, port)
 
     greeting = await reader.readline()
     logger.debug(greeting.decode().strip())
@@ -77,11 +76,22 @@ async def tcp_client(message, token):
 
 def main():
     load_dotenv()
-    token = os.getenv('USER_TOKEN')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('message', help='Сообщение')
+    parser.add_argument('--token', '-t', help='Токен, полученный при авторизации')
+    parser.add_argument('--host', type=str, default='minechat.dvmn.org')
+    parser.add_argument('--port', type=int, default=5050)
+    parser.add_argument('--username', default='anonymous')
+
+    args = parser.parse_args()
+
+    token = args.token if args.token else os.getenv('USER_TOKEN')
+    message, host, port, username = args.message, args.host, args.port, args.username
+
     if token:
-        asyncio.run(tcp_client(message='Test message', token=token))
+        asyncio.run(tcp_client(message, token, host, port))
     else:
-        asyncio.run(register())
+        asyncio.run(register(username, host, port))
 
 
 if __name__ == '__main__':
