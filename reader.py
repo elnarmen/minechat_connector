@@ -7,7 +7,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 
-async def tcp_echo_client(host, port, path_to_output_file):
+async def read_chat(host, port, path_to_output_file):
     while True:
         try:
             reader, writer = await asyncio.open_connection(
