@@ -27,6 +27,7 @@ async def register(username='anonymous'):
     response = await reader.readline()
     logger.debug(f'Ответ: {response.decode().strip()}')
 
+    username = username.replace('\n', '').strip()
     writer.write(f'{username}\n'.encode())
     logger.debug(f'Отправлен никнейм {username} для регистрации')
     await writer.drain()
@@ -42,6 +43,7 @@ async def register(username='anonymous'):
 
 
 async def submit_message(writer, message):
+    message = message.replace('\n', '').strip()
     writer.write(f'{message}\n\n'.encode())
     logger.debug(f'Сообщение: {message}')
     await writer.drain()
