@@ -35,14 +35,14 @@ def main():
     parser.add_argument(
         '--path',
         type=str,
-        default='output.txt',
+        default='chat_history.txt',
         help='Path to the file where the chat will be stored.')
 
     args = parser.parse_args()
 
     host, port, chat_history_path = args.host, args.port, args.path
 
-    asyncio.run(tcp_echo_client(host, port, chat_history_path))
+    asyncio.run(read_chat(host, port, chat_history_path))
 
 
 if __name__ == '__main__':

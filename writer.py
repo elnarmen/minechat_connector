@@ -14,7 +14,7 @@ logging.getLogger('asyncio').setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
-async def register(username, host, port):
+async def register(username, host, port, message):
     reader, writer = await asyncio.open_connection(host, port)
 
     response = await reader.readline()
@@ -33,13 +33,16 @@ async def register(username, host, port):
     await writer.drain()
 
     registration_result = json.loads(await reader.readline())
+    token = registration_result['account_hash']
     async with aiofiles.open('.env', 'a') as file:
-        await file.write(f'USER_TOKEN={registration_result["account_hash"]}')
+        await file.write(f'USER_TOKEN={token}')
     logger.debug(f'Ответ: {registration_result}')
     logger.debug('Токен сохранен в файле ".env"')
 
     writer.close()
     await writer.wait_closed()
+
+    await tcp_client(message, token, host, port)
 
 
 async def submit_message(writer, message):
@@ -91,7 +94,7 @@ def main():
     if token:
         asyncio.run(tcp_client(message, token, host, port))
     else:
-        asyncio.run(register(username, host, port))
+        asyncio.run(register(username, host, port, message))
 
 
 if __name__ == '__main__':
