@@ -52,7 +52,7 @@ async def register(username, host, port, message):
         writer.close()
         await writer.wait_closed()
 
-        await tcp_client(message, token, host, port)
+        await connect_to_tcp(message, token, host, port)
 
 
 async def submit_message(writer, message):
@@ -62,7 +62,7 @@ async def submit_message(writer, message):
     await writer.drain()
 
 
-async def tcp_client(message, token, host, port):
+async def connect_to_tcp(message, token, host, port):
     async with manage_tcp_connection(host, port) as (reader, writer):
         greeting = await reader.readline()
         logger.debug(greeting.decode().strip())
@@ -98,7 +98,7 @@ def main():
     message, host, port, username = args.message, args.host, args.port, args.username
 
     if token:
-        asyncio.run(tcp_client(message, token, host, port))
+        asyncio.run(connect_to_tcp(message, token, host, port))
     else:
         asyncio.run(register(username, host, port, message))
 
